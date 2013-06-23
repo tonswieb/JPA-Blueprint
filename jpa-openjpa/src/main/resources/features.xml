@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features>
+	<feature name="${project.artifactId}" version="${project.version}">
+		<feature version="${feature.jpa.version}">jpa</feature>
+		<feature version="${feature.transaction.version}">transaction</feature>
+		<feature version="${feature.jndi.version}">jndi</feature>
+		<bundle>mvn:net.sourceforge.serp/com.springsource.serp/${serp.version}
+		</bundle>
+		<bundle>mvn:org.apache.openjpa/openjpa/${openjpa.version}</bundle>
+		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-collections/${org.apache.servicemix.bundles.commons-collections.version}
+		</bundle>
+		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-dbcp/${org.apache.servicemix.bundles.commons-dbcp.version}
+		</bundle>
+		<bundle>mvn:org.apache.derby/derby/${derby.version}</bundle>
+		<bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+	</feature>
+</features>

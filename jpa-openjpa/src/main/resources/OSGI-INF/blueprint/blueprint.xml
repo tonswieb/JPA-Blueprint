@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xmlns:camel="http://camel.apache.org/schema/blueprint" xmlns:jpa="http://aries.apache.org/xmlns/jpa/v1.1.0"
+	xmlns:tx="http://aries.apache.org/xmlns/transactions/v1.0.0"
+	xsi:schemaLocation="
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd
+       http://aries.apache.org/xmlns/jpa/v1.1.0 http://aries.apache.org/schemas/jpa/jpa_110.xsd
+       http://aries.apache.org/xmlns/transactions/v1.0.0 http://aries.apache.org/schemas/transaction/transactionv10.xsd">
+
+	<!-- OSGI blueprint property placeholder -->
+	<cm:property-placeholder id="propertyPlaceholder"
+		persistent-id="nl.finalist.esb.blueprint.jpa" update-strategy="reload">
+		<cm:default-properties>
+		</cm:default-properties>
+	</cm:property-placeholder>
+
+	<!-- DataSource Derby -->
+	<bean id="dataSourceDerby" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
+		<property name="url" value="jdbc:derby:/temp/finalist;create=true" />
+		<property name="username" value="" />
+		<property name="password" value="" />
+	</bean>
+
+	<!-- Expose DataSource as JNDI reference -->
+	<service ref="dataSourceDerby" interface="javax.sql.DataSource">
+		<service-properties>
+			<entry key="osgi.jndi.service.name" value="jdbc/finalist" />
+		</service-properties>
+	</service>
+
+	<bean id="testRepository"
+		class="nl.finalist.esb.blueprint.jpa.impl.repository.TestRepository">
+		<tx:transaction method="*" value="Required" />
+		<jpa:context unitname="finalist" index="0"/>
+	</bean>
+
+	<bean id="jpaSelect" class="nl.finalist.esb.blueprint.jpa.impl.route.JPASelect">
+		<property name="testRepository" ref="testRepository" />
+	</bean>
+
+	<service ref="testRepository" interface="nl.finalist.esb.blueprint.jpa.TestRepository">
+	</service>
+
+	<camel:camelContext depends-on="testRepository">
+		<camel:routeBuilder ref="jpaSelect" />
+	</camel:camelContext>
+</blueprint>
